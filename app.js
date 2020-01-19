@@ -1,25 +1,80 @@
-const validator = require("validator");
-const chalk = require("chalk");
-const add = require("./utils");
-// const fs = require("fs");
+const yargs = require("yargs");
+const note = require("./utils");
 
-// //fs.writeFileSync("./storage/note.txt", "write some data");
-// fs.appendFileSync("./storage/note.txt", "data to appand")
-const a = add();
-console.log(a);
-const email = "email@gmail.com";
-const is = validator.isEmail(email);
-console.log(is);
+// ===== defferent between yargs and common argv
+// console.log(process.argv);
+// console.log(yargs.argv);
 
-console.log(chalk.green.bold("Success!"));
-console.log(chalk.red.inverse.bold("Error!"));
+// Customize yargs version
+yargs.version("1.1.0");
 
-console.log(process.argv[2]);
-const command = process.argv[2];
-console.log(process.argv);
+// create add command
+yargs.command({
+  // yargs.command object from yargs
+  command: "add",
+  describe: "Add a new note",
+  builder: {
+    //builder from yargs
+    title: {
+      describe: "Note title..",
+      demandOption: true, // from yargs,required to true, default is false
+      type: "string" // from yargs, type input
+    },
+    body: {
+      describe: "Note body",
+      demandOption: true,
+      type: "string"
+    }
+  },
+  handler: function(argv) {
+    // console.log("adding a new note!", argv);
+    // console.log("Title : " + argv.title);
+    // console.log("Body : " + argv.body);
+    note.addNote(argv.title, argv.body);
+  }
+});
 
-if (command === "add") {
-  console.log("Adding Note");
-} else if (command === "remove") {
-  console.log("Remove Note");
-}
+// create remove command
+yargs.command({
+  command: "remove",
+  describe: "remove a note",
+  builder: {
+    title: {
+      describe: "Note title..",
+      demandOption: true,
+      type: "string"
+    }
+  },
+  handler: function(argv) {
+    note.removeNote(argv.title);
+  }
+});
+
+// create read command
+yargs.command({
+  command: "read",
+  describe: "Read note",
+  builder: {
+    title: {
+      describe: "Note title..",
+      demandOption: true,
+      type: "string"
+    }
+  },
+  handler: function(argv) {
+    note.readNote(argv.title);
+  }
+});
+
+// create list command
+yargs.command({
+  command: "list",
+  describe: "list note",
+  handler: function() {
+    const data = note.getNotes();
+    console.table(data);
+  }
+});
+
+// console.log(yargs.argv);
+yargs.parse();
